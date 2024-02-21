@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Bootstrap demo</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+    </head>
+    <body>
+        <div class="container mt-3">
+            <h3 class="p-3 text-center">Bus Booking APP using curdcrud.com backend</h3>
+            <form onsubmit="submitHandler(event)">
+                <div class="row">
+                    <div class="col-4">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" />
+                        </div>
+                    </div>
+
+                    <div class="col-4">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" />
+                        </div>
+                    </div>
+
+                    <div class="col-4">
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-4 mb-3">
+                        <label for="selectCategory" class="form-label">Car No</label>
+                        <select class="form-select" id="selectCategory" name="selectCategory" aria-label="Default select example">
+                            <option value="Bus 1">Bus 1</option>
+                            <option value="Bus 2">Bus 2</option>
+                            <option value="Bus 3">Bus 3</option>
+                        </select>
+                    </div>
+
+                    <div class="col-4 mt-4">
+                        <button type="submit" class="btn btn-primary btn-md mt-2">
+                            Add Booking
+                        </button>
+                    </div>
+
+                    <div class="col-4 mb-3">
+                        <label for="selectFilter" class="form-label">Filter By</label>
+                        <select class="form-select" id="selectFilter" name="selectFilter" aria-label="Default select example">
+                            <option value="all">All</option>
+                            <option value="Bus 1">Bus 1</option>
+                            <option value="Bus 2">Bus 2</option>
+                            <option value="Bus 3">Bus 3</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+
+            <table class="table mt-5">
+                <thead>
+                    <tr>
+                        <th scope="col">S.No</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Phone</th>
+                        <th scope="col">Bus No</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.1/axios.min.js"></script>
+
+        <script>
+
+            const uniqueUrl = "eaf9852d46be416a853d83be68d16015";
+
+            window.addEventListener("DOMContentLoaded", function (event) {
+                axios
+                    .get(`https://crudcrud.com/api/${uniqueUrl}/busbooking`)
+
+                    .then((res) => {
+                        for (let i = 0; i < res.data.length; i++) {
+                            const key = res.data[i];
+
+                            const id = key._id;
+                            const name = key.name;
+                            const email = key.email;
+                            const phone = key.phone;
+                            const busNo = key.selectCategory;
+
+                            console.log(key);
+
+                            const tbody = document.querySelector("tbody");
+
+                            const createTr = document.createElement("tr");
+                            const createSNo = document.createElement("td");
+                            createSNo.textContent = i + 1;
+
+                            const createTdAmount = document.createElement("td");
+                            createTdAmount.textContent = name;
+                            createTdAmount.classList.add("name");
+
+                            const createTdCategory = document.createElement("td");
+                            createTdCategory.textContent = email;
+
+                            const createTdDesc = document.createElement("td");
+                            createTdDesc.textContent = phone;
+
+                            const createBusNo = document.createElement("td");
+                            createBusNo.textContent = busNo;
+
+                            // actions Create TD
+                            const createTdActions = document.createElement("td");
+                            createTdActions.innerHTML = `
+    <div>
+        <button class="btn btn-sm btn-primary" onclick="onEdit('${name}' , '${email}' , '${phone}' , '${busNo}' , '${id}'  )" >Edit Expense </button>
+        <button class="btn btn-sm btn-danger" onclick="onDelete('${id}')" >Delete Expense</button>
+    </div>
+    `;
+
+                            createTr.appendChild(createSNo);
+                            createTr.appendChild(createTdAmount);
+                            createTr.appendChild(createTdCategory);
+                            createTr.appendChild(createTdDesc);
+                            createTr.appendChild(createBusNo);
+                            createTr.appendChild(createTdActions);
+
+                            tbody.appendChild(createTr);
+
+                            // console.log( amount , category , desc  );
+                        }
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
+            });
+
+            function submitHandler(event) {
+                event.preventDefault();
+
+                const name = event.target.name.value;
+                const email = event.target.email.value;
+                const phone = event.target.phone.value;
+                const selectCategory = event.target.selectCategory.value;
+
+                const entry = {
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    selectCategory: selectCategory,
+                };
+
+                // console.log( "dfds" , uniqueUrl );
+
+                axios
+                    .post(`https://crudcrud.com/api/${uniqueUrl}/busbooking`, entry)
+                    .then((data) => {
+                        // console.log(data);
+                        window.location.reload();
+                    })
+                    .catch((error) => console.log(error));
+
+                // console.log(name, email, phone, selectCategory);
+
+                // localStorage.setItem(amount, JSON.stringify(entry));
+                // window.location.reload();
+            }
+
+            function onEdit(name, email, phone, busNo, id) {
+                // console.log("On edit " ,  amountt , categoryy , descc )
+                document.querySelector("#name").value = name;
+                document.querySelector("#email").value = email;
+                document.querySelector("#phone").value = phone;
+                document.querySelector("#selectCategory").value = busNo;
+
+                const tdElement = document.querySelectorAll(".name");
+
+                tdElement.forEach((element) => {
+                    const domElement = element.parentElement;
+
+                    if (element.textContent === name) {
+                        // console.log(  domValue  );
+                        domElement.style.display = "none";
+                        // localStorage.removeItem(amountt);
+                        onDelete(id);
+                    }
+                });
+            }
+
+            function onDelete(key) {
+                // console.log( `https://crudcrud.com/api/${uniqueUrl}/busbooking/${key}/` );
+                axios
+                    .delete(`https://crudcrud.com/api/${uniqueUrl}/busbooking/${key}/`)
+                    .then((result) => {
+                        console.log("Delete - ", result);
+                         window.location.reload();
+                    })
+                    .catch((error) => console.log(error));
+
+               
+            }
+
+            // console.log( localStorageLength , localStorage.key(3)  );
+        </script>
+    </body>
+</html>
